@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class KartController : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class KartController : MonoBehaviour
 
     public GameObject physicsManager;       // 物理管理器
     //public GameObject roadBoard;            // 赛道
+    public Text score;
 
     private float driveForce;               // 牵引力
     private float friction;                 // 摩擦力
@@ -33,6 +35,8 @@ public class KartController : MonoBehaviour
     //private Bounds roadBounds;
     private GameObject[] roadBoard;
     private bool insideRoad = false;
+
+    private float scorePoint = 0;
 
     private void Start()
     {
@@ -138,6 +142,11 @@ public class KartController : MonoBehaviour
             Debug.Log("当前速度为 " + velocity);
             Debug.Log("当前加速度为 " + acceleration);
 
+            if (velocity > 0)
+            {
+                scorePoint++;
+                score.text = "Score: " + scorePoint.ToString();
+            }
         }
     }
 
