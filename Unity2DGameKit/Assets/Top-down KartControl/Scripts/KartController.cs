@@ -26,9 +26,9 @@ public class KartController : MonoBehaviour
 
     private Rigidbody2D rgb;
 
-    private bool straight = true;
-    private bool left = false;
-    private bool right = false;
+    public bool straight = true;
+    public bool left = false;
+    public bool right = false;
 
     //private Bounds roadBounds;
     private GameObject[] roadBoard;
