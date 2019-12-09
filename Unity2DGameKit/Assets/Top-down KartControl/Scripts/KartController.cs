@@ -13,7 +13,7 @@ public class KartController : MonoBehaviour
     public float velocityRejust = 6;        // 速度微调
 
     public GameObject physicsManager;       // 物理管理器
-    public Collider2D roadBoard;            // 赛道
+    //public GameObject roadBoard;            // 赛道
 
     private float driveForce;               // 牵引力
     private float friction;                 // 摩擦力
@@ -30,7 +30,9 @@ public class KartController : MonoBehaviour
     private bool left = false;
     private bool right = false;
 
-    private Bounds roadBounds;
+    //private Bounds roadBounds;
+    private GameObject[] roadBoard;
+    private bool insideRoad = false;
 
     private void Start()
     {
@@ -42,7 +44,7 @@ public class KartController : MonoBehaviour
 
         rgb = GetComponent<Rigidbody2D>();
 
-        roadBounds = roadBoard.bounds;
+        //roadBounds = roadBoard.GetComponent<Collider2D>().bounds;
 
         Debug.Log("最大速度为 " + normalPower / -friction);
         Debug.Log("起步牵引力为 " + driveForce);
@@ -51,74 +53,92 @@ public class KartController : MonoBehaviour
 
     private void Update()
     {
-        if (roadBounds.Contains((Vector2)transform.position))   // 离开赛道GameOver
+        //if (!roadBounds.Contains(transform.position))   // 离开赛道GameOver
+        //{// 无法形成多边形区域，因此即使离开赛道也会判定为没有离开
+        //    Debug.Log("Game Over!");
+        //    GetComponent<KartController>().enabled = false;
+        //}
+        // 每次更新判断一次赛车是否在赛道内
+        insideRoad = false;
+        roadBoard = GameObject.FindGameObjectsWithTag("Road");
+        foreach(GameObject road in roadBoard)
         {
-            Debug.Log("Game Over!");
+            Bounds roadBounds = road.GetComponent<Collider2D>().bounds;
+            if (roadBounds.Contains(transform.position))
+                insideRoad = true;
+        }
+        if (!insideRoad)
+        {
+            Debug.Log("离开赛道！");
             GetComponent<KartController>().enabled = false;
+            Time.timeScale = 0;
         }
 
-        if (Input.GetKeyDown(KeyCode.W))
+        if (insideRoad)
         {
-            if (left || right)
+            if (Input.GetKeyDown(KeyCode.W))
             {
-                straight = true;
-                left = false;
-                right = false;
-                transform.rotation = Quaternion.Euler(0, 0, 0);
+                if (left || right)
+                {
+                    straight = true;
+                    left = false;
+                    right = false;
+                    transform.rotation = Quaternion.Euler(0, 0, 0);
+                }
             }
-        }
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            if (straight)
+            if (Input.GetKeyDown(KeyCode.A))
             {
-                left = true;
-                straight = false;
-                right = false;
-                transform.rotation = Quaternion.Euler(0, 0, 90);
+                if (straight)
+                {
+                    left = true;
+                    straight = false;
+                    right = false;
+                    transform.rotation = Quaternion.Euler(0, 0, 90);
+                }
             }
-        }
-        if (Input.GetKeyDown(KeyCode.D))
-        {
-            if (straight)
+            if (Input.GetKeyDown(KeyCode.D))
             {
-                right = true;
-                straight = false;
-                left = false;
-                transform.rotation = Quaternion.Euler(0, 0, -90);
+                if (straight)
+                {
+                    right = true;
+                    straight = false;
+                    left = false;
+                    transform.rotation = Quaternion.Euler(0, 0, -90);
+                }
             }
-        }
 
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
-        {// 直行
-            if (Input.GetKey(KeyCode.LeftShift))
-            {// 加速
-                AccelUp();
-            }
-            else if (Input.GetKey(KeyCode.LeftControl))
-            {// 减速
-                SlowUp();
-                Debug.Log("Slow");
+            if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D))
+            {// 直行
+                if (Input.GetKey(KeyCode.LeftShift))
+                {// 加速
+                    AccelUp();
+                }
+                else if (Input.GetKey(KeyCode.LeftControl))
+                {// 减速
+                    SlowUp();
+                    Debug.Log("Slow");
+                }
+                else
+                {// 起步
+                    StartUp();
+                }
             }
             else
-            {// 起步
-                StartUp();
+            {// 停车
+                EndUp();
             }
+
+            if (straight)
+                rgb.velocity = new Vector2(0, velocity / velocityRejust);
+            if (left)
+                rgb.velocity = new Vector2(-velocity / velocityRejust, 0);
+            if (right)
+                rgb.velocity = new Vector2(velocity / velocityRejust, 0);
+
+            Debug.Log("当前速度为 " + velocity);
+            Debug.Log("当前加速度为 " + acceleration);
+
         }
-        else
-        {// 停车
-            EndUp();
-        }
-
-        if (straight)
-            rgb.velocity = new Vector2(0, velocity / velocityRejust);
-        if (left)
-            rgb.velocity = new Vector2(-velocity / velocityRejust, 0);
-        if (right)
-            rgb.velocity = new Vector2(velocity / velocityRejust, 0);
-
-        Debug.Log("当前速度为 " + velocity);
-        Debug.Log("当前加速度为 " + acceleration);
-
     }
 
     private void StartUp()
@@ -173,4 +193,24 @@ public class KartController : MonoBehaviour
     {// 右转
 
     }
+
+    // 用碰撞事件不能解决赛道衔接的问题
+    //private void OnTriggerEnter2D(Collider2D collision)
+    //{
+    //    if (collision.tag == "Road")
+    //    {
+    //        GetComponent<KartController>().enabled = true;
+    //        Time.timeScale = 1;
+    //    }
+    //}
+
+    //private void OnTriggerExit2D(Collider2D collision)
+    //{
+    //    if (collision.tag == "Road")
+    //    {
+    //        Debug.Log("离开赛道！");
+    //        GetComponent<KartController>().enabled = false;
+    //        Time.timeScale = 0;
+    //    }
+    //}
 }
