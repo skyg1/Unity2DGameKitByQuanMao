@@ -13,11 +13,13 @@ public class UIManager : MonoBehaviour
     public Text sleepModeHint;
     public RectTransform collection;
     public RectTransform forum;
+    public RectTransform search;
 
     private bool infomationIsOpened = false;
     private bool sleepModeIsOpened = false;
     private bool collectionIsOpened = false;
     private bool forumIsOpened = false;
+    private bool searchIsOpened = false;
 
     public void Login()
     {
@@ -40,7 +42,8 @@ public class UIManager : MonoBehaviour
         if (sleepModeIsOpened)
         {
             sleepMode.DOAnchorPosY(0, 0.3f).SetEase(Ease.OutQuart);
-            sleepModeHint.DOColor(new Color(0.38f, 0.56f, 0.7f), 1.5f);
+            sleepModeHint.DOText("睡眠模式启动成功！", 2f);
+            sleepModeHint.DOColor(new Color(0.38f, 0.56f, 0.7f), 2.8f);
         }
     }
 
@@ -50,6 +53,7 @@ public class UIManager : MonoBehaviour
         if (collectionIsOpened)
         {
             forum.DOAnchorPosX(1200, 0.3f).SetEase(Ease.OutQuart);
+            search.DOAnchorPosX(1200, 0.3f).SetEase(Ease.OutQuart);
             collection.DOAnchorPosX(0, 0.3f).SetEase(Ease.OutQuart);
         }
     }
@@ -60,7 +64,19 @@ public class UIManager : MonoBehaviour
         if (forumIsOpened)
         {
             collection.DOAnchorPosX(-1200, 0.3f).SetEase(Ease.OutQuart);
+            search.DOAnchorPosX(1200, 0.3f).SetEase(Ease.OutQuart);
             forum.DOAnchorPosX(0, 0.3f).SetEase(Ease.OutQuart);
+        }
+    }
+
+    public void Search()
+    {
+        searchIsOpened = !searchIsOpened;
+        if (searchIsOpened)
+        {
+            collection.DOAnchorPosX(-1200, 0.3f).SetEase(Ease.OutQuart);
+            forum.DOAnchorPosX(1200, 0.3f).SetEase(Ease.OutQuart);
+            search.DOAnchorPosX(0, 0.3f).SetEase(Ease.OutQuart);
         }
     }
 
