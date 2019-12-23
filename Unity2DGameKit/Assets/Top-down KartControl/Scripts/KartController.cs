@@ -13,6 +13,8 @@ public class KartController : MonoBehaviour
     public float startVeloctiy = 100;        // 初速度
     public float velocityRejust = 6;        // 速度微调
 
+    public ParticleSystem fire;
+
     public GameObject physicsManager;       // 物理管理器
     //public GameObject roadBoard;            // 赛道
     public Text score;
@@ -28,8 +30,11 @@ public class KartController : MonoBehaviour
 
     private Rigidbody2D rgb;
 
+    [HideInInspector]
     public bool straight = true;
+    [HideInInspector]
     public bool left = false;
+    [HideInInspector]
     public bool right = false;
 
     //private Bounds roadBounds;
@@ -76,6 +81,7 @@ public class KartController : MonoBehaviour
             Debug.Log("离开赛道！");
             GetComponent<KartController>().enabled = false;
             Time.timeScale = 0;
+            fire.gameObject.SetActive(false);
         }
 
         if (insideRoad)
@@ -126,10 +132,14 @@ public class KartController : MonoBehaviour
                 {// 起步
                     StartUp();
                 }
+
+                fire.gameObject.SetActive(true);
             }
             else
             {// 停车
                 EndUp();
+
+                fire.gameObject.SetActive(false);
             }
 
             if (straight)
